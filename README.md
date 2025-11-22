@@ -33,8 +33,8 @@ O modelo foi avaliado utilizando métricas de regressão padrão. Os desafios en
 | Métrica | Valor Obtido | Interpretação |
 | :--- | :---: | :--- |
 | **R² (R-Squared)** | `-0.7168` | Indica dificuldade de generalização frente à média histórica. |
-| **MAE** | `~400.663 t` | Erro Médio Absoluto. |
-| **RMSE** | `~872.884 t` | Indica penalização por erros em picos de safra atípicos. |
+| **MAE** | `400.663 t` | Erro Médio Absoluto. |
+| **RMSE** | `872.884 t` | Indica penalização por erros em picos de safra atípicos. |
 
 
 **Principais Achados:**
