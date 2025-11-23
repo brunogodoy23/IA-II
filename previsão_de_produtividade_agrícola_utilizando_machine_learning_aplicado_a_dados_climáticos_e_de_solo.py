@@ -31,10 +31,7 @@ dados = pd.read_csv(arquivo_nome)
 print("\nPré-visualização dos dados:")
 print(dados.head())
 
-# ------------------------------------------------------------
 # FUNÇÃO PARA TREINAR ARIMA PARA CADA VARIÁVEL CLIMÁTICA
-# ------------------------------------------------------------
-
 def prever_clima_arima(df, ano_escolhido):
     meses = list(range(1, 13))
     previsoes = {"Ano": [ano_escolhido]*12, "Mes": meses}
@@ -49,10 +46,8 @@ def prever_clima_arima(df, ano_escolhido):
 
     return pd.DataFrame(previsoes)
 
-# ------------------------------------------------------------
-# TREINAR O MODELO DE REGRESSÃO (RANDOM FOREST)
-# ------------------------------------------------------------
 
+# TREINAR O MODELO DE REGRESSÃO (RANDOM FOREST)
 X = dados[["Precipitacao","Temp_Max","Temp_Min","Umidade","Temp_Media","Ano","Mes"]]
 y = dados["Producao_t"]
 
@@ -76,7 +71,7 @@ print("\nModelo Random Forest treinado com sucesso!")
 
 # ==============================================================================
 #  BLOCO NOVO: CÁLCULO DAS MÉTRICAS
-# ==============================================================================
+
 
 print("\n--- Calculando métricas de desempenho... ---")
 
@@ -101,9 +96,8 @@ print("="*55 + "\n")
 # ==============================================================================
 
 
-# ------------------------------------------------------------
-# LOOP PRINCIPAL (INTERAÇÃO COM O USUÁRIO)
-# ------------------------------------------------------------
+
+# LOOP PRINCIPAL
 
 while True:
     escolha = input("\nDigite o ano que deseja prever (ou 'sair'): ")
