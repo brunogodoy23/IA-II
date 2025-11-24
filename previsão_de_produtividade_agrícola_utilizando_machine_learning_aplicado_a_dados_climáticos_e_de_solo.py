@@ -7,31 +7,29 @@ Original file is located at
     https://colab.research.google.com/drive/1qgPZwAi63RAO5D7NvKE8I7TxbptnIlwx
 """
 
-# ============================================================
-#   PREVISÃO DE CLIMA + PREVISÃO DE PRODUTIVIDADE AGRÍCOLA
-#   Método: ARIMA + RandomForest
-# ============================================================
+#PREVISÃO DE CLIMA + PREVISÃO DE PRODUTIVIDADE AGRÍCOLA
+#Método: ARIMA + RandomForest
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from statsmodels.tsa.arima.model import ARIMA
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from statsmodels.tsa.arima.model import ARIMA #IA deprevisao temporal
+from sklearn.model_selection import train_test_split #Importa a funcao que divide os dados
+from sklearn.preprocessing import StandardScaler #Padronizar os dados numericos
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score #Metricas de avaliação de modelos de regressao.
 from google.colab import files
 
-print("=== SUBA O ARQUIVO 'dados_finais_clima_produtividade_tratados.csv' ===")
+print("=== ARQUIVO 'dados_finais_clima_produtividade_tratados.csv' ===")
 uploaded = files.upload()
 
 arquivo_nome = list(uploaded.keys())[0]
 dados = pd.read_csv(arquivo_nome)
 
-print("\nPré-visualização dos dados:")
+print("\nPre-visualização dos dados:")
 print(dados.head())
 
-# FUNÇÃO PARA TREINAR ARIMA PARA CADA VARIÁVEL CLIMÁTICA
+# FUNÇÃO PARA TREINAR ARIMA PARA CADA VARIÁVEL CLIMATICA
 def prever_clima_arima(df, ano_escolhido):
     meses = list(range(1, 13))
     previsoes = {"Ano": [ano_escolhido]*12, "Mes": meses}
@@ -39,7 +37,7 @@ def prever_clima_arima(df, ano_escolhido):
 
     for var in variaveis_climaticas:
         serie = df[var]
-        modelo = ARIMA(serie, order=(2,1,2))
+        modelo = ARIMA(serie, order=(2,1,2))#2 parte Autoregressiva (AR) | 1 diferenciação (I) | 2 média móvel (MA)
         modelo_treinado = modelo.fit()
         forecast = modelo_treinado.forecast(steps=12)
         previsoes[var] = forecast.values
@@ -47,57 +45,49 @@ def prever_clima_arima(df, ano_escolhido):
     return pd.DataFrame(previsoes)
 
 
-# TREINAR O MODELO DE REGRESSÃO (RANDOM FOREST)
+# TREINAR O MODELO DE REGRESSAO RANDOM FOREST
 X = dados[["Precipitacao","Temp_Max","Temp_Min","Umidade","Temp_Media","Ano","Mes"]]
 y = dados["Producao_t"]
 
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Separando 80% para treino e 20% para teste (validação)
+# Separando 80% para treino e 20% para teste validação
+#X_scaled vairiaveis climaticas
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y,
                                                     test_size=0.2,
                                                     random_state=42)
 
 modelo_rf = RandomForestRegressor(
-    n_estimators=800,
-    max_depth=20,
-    random_state=42
+    n_estimators=800, #Quantidade de árvores
+    max_depth=20, #Profundidade máxima
+    random_state=42 #divisão sempre igual
 )
 
 modelo_rf.fit(X_train, y_train)
 
 print("\nModelo Random Forest treinado com sucesso!")
 
-# ==============================================================================
-#  BLOCO NOVO: CÁLCULO DAS MÉTRICAS
+print("\n--- Calculando metricas de desempenho... ---")
 
-
-print("\n--- Calculando métricas de desempenho... ---")
-
-# 1. O modelo tenta prever usando os dados de teste
+#modelo tenta prever usando os dados de teste
 y_pred_teste = modelo_rf.predict(X_test)
 
-# 2. Calcula os erros comparando a previsão com a realidade
-mae_real = mean_absolute_error(y_test, y_pred_teste)
-mse_real = mean_squared_error(y_test, y_pred_teste)
-rmse_real = np.sqrt(mse_real)
-r2_real = r2_score(y_test, y_pred_teste)
+#Calcula os erros comparando a previsão com a realidade
+mae_real = mean_absolute_error(y_test, y_pred_teste) #Erro Médio Absoluto
+mse_real = mean_squared_error(y_test, y_pred_teste) #Erro Quadrático Médio
+rmse_real = np.sqrt(mse_real) #Raiz do Erro Quadrático Médio
+r2_real = r2_score(y_test, y_pred_teste) #Coeficiente de Determinação
 
-# 3. Imprime os resultados de forma clara
+#Imprime os resultados
 print("\n" + "="*55)
 print("   RESULTADOS   ")
 print("="*55)
-print(f"1. R² (Coeficiente de Determinação): {r2_real:.4f}")
-print(f"2. MAE (Erro Médio Absoluto):      {mae_real:.2f}")
-print(f"3. RMSE (Raiz do Erro Quadrático): {rmse_real:.2f}")
+print(f"1. R² (Coeficiente de Determinacao): {r2_real:.4f}")
+print(f"2. MAE (Erro Medio Absoluto):      {mae_real:.2f}")
+print(f"3. RMSE (Raiz do Erro Quadratico): {rmse_real:.2f}")
 print("="*55 + "\n")
 
-# ==============================================================================
-
-
-
-# LOOP PRINCIPAL
 
 while True:
     escolha = input("\nDigite o ano que deseja prever (ou 'sair'): ")
@@ -109,15 +99,15 @@ while True:
     try:
         ano_escolhido = int(escolha)
     except:
-        print("Digite um ano válido!")
+        print("Digite um ano valido!")
         continue
 
-    # Se o ano já existe -> mostrar gráfico real vs previsto
+    #se o ano ja existe ent mostrar grafico real vs previsto
     dados_ano = dados[dados["Ano"] == ano_escolhido]
 
     if len(dados_ano) > 0:
-        print(f"\nO ano {ano_escolhido} já existe no dataset!")
-        print("Plotando gráfico Real x Previsto...")
+        print(f"\nO ano {ano_escolhido} ja existe no dataset!")
+        print("Plotando grafico Real x Previsto...")
 
         X_real = dados_ano[["Precipitacao","Temp_Max","Temp_Min","Umidade","Temp_Media","Ano","Mes"]]
         X_real_scaled = scaler.transform(X_real)
@@ -127,21 +117,21 @@ while True:
         plt.plot(dados_ano["Mes"], dados_ano["Producao_t"], marker="o", label="Real", color="blue")
         plt.plot(dados_ano["Mes"], y_prev, marker="s", linestyle="--", label="Previsto (RF)", color="orange")
         plt.title(f"Produtividade Real vs Prevista — Ano {ano_escolhido}")
-        plt.xlabel("Mês")
-        plt.ylabel("Produção (t)")
+        plt.xlabel("Mes")
+        plt.ylabel("Producao (t)")
         plt.legend()
         plt.grid(True)
         plt.show()
 
         continue
 
-    # Ano NÃO existe -> prever clima e produtividade
+    # se o ano nao existe ent prever clima e produtividade
     print(f"\n Ano {ano_escolhido} NÃO existe no dataset.")
     print("Gerando previsão de clima (ARIMA) + produtividade...")
 
     clima_prev = prever_clima_arima(dados, ano_escolhido)
 
-    # prever produtividade mês a mês
+    # prever produtividade mes a mes
     X_prev = clima_prev[["Precipitacao","Temp_Max","Temp_Min","Umidade","Temp_Media"]]
     X_prev["Ano"] = ano_escolhido
     X_prev["Mes"] = clima_prev["Mes"]
@@ -151,15 +141,15 @@ while True:
 
     clima_prev["Produtividade_prevista"] = prod_prevista
 
-    # gráfico
+    #grafico
     plt.figure(figsize=(10,6))
     plt.plot(clima_prev["Mes"], prod_prevista, marker="o", color="green", label="Previsão Futura")
-    plt.title(f"Produtividade Prevista (Cenário Futuro) — Ano {ano_escolhido}")
-    plt.xlabel("Mês")
-    plt.ylabel("Produção Estimada (t)")
+    plt.title(f"Produtividade Prevista (Cenario Futuro) — Ano {ano_escolhido}")
+    plt.xlabel("Mes")
+    plt.ylabel("Producao Estimada (t)")
     plt.legend()
     plt.grid(True)
     plt.show()
 
-    print("\n=== PREVISÕES GERADAS (CLIMA + PRODUÇÃO) ===")
+    print("\n=== PREVISOES GERADAS (CLIMA + PRODUCAO) ===")
     print(clima_prev[["Mes", "Produtividade_prevista", "Precipitacao", "Temp_Media"]])
